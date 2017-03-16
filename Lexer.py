@@ -1,12 +1,9 @@
 import re
 from enum import Enum
 from typing import NamedTuple
+from Common import CompilationError
 
 INDENTATION_SIZE = 4
-
-
-class CompilationError(ValueError):
-    pass
 
 
 class LexError(CompilationError):
@@ -14,20 +11,65 @@ class LexError(CompilationError):
 
 
 class LexemeType(Enum):
+    # Keywords
+    CLASS = re.compile(r'class')
     DEF = re.compile('def')
     COLON = re.compile(':')
     LPAREN = re.compile(r'\(')
     RPAREN = re.compile(r'\)')
+    LBRACKET = re.compile(r'\[')
+    RBRACKET = re.compile(r'\]')
+    LCURLY = re.compile(r'}')
+    RCURLY = re.compile(r'}')
+    ASSIGN = re.compile(r'=')
+    EQ = re.compile(r'==')
+    NEQ = re.compile(r'!=')
+    GT = re.compile(r'>')
+    GTE = re.compile(r'>=')
+    LT = re.compile(r'<')
+    LTE = re.compile(r'<=')
+    PLUS = re.compile(r'\+')
+    MINUS = re.compile(r'-')
+    MULT = re.compile(r'\*')
+    DIV = re.compile(r'/')
+    MOD = re.compile(r'%')
+    AND = re.compile(r'and')
+    OR = re.compile(r'or')
+    NOT = re.compile(r'not')
+    IN = re.compile(r'in')
+    IS = re.compile(r'is')
+    DOT = re.compile(r'\.')
+    COMMA = re.compile(r',')
+    FOR = re.compile(r'for')
+    WHILE = re.compile(r'while')
+    CONTINUE = re.compile(r'continue')
+    BREAK = re.compile(r'BREAK')
+    IF = re.compile(r'if')
+    ELSE = re.compile(r'else')
+    ELIF = re.compile(r'elif')
+    PASS = re.compile(r'pass')
+    TRUE = re.compile(r'True')
+    FALSE = re.compile(r'False')
+    NONE = re.compile(r'None')
+    RETURN = re.compile(r'return')
+    LAMBDA = re.compile(r'lambda')
+    # TODO: this might be used for short lambda syntax: 2*it instead of lambda x: 2*x.
+    # IT = re.compile(r'it')
 
+    # Literals
     STRING = re.compile(r'"([ -!#-\[\]-~]|(\\[tn\\\"]))*"')
     INT = re.compile('[0-9]+')
+    # Symbols
     ID = re.compile('[a-zA-Z][a-zA-Z0-9_]*')
-    WHITESPACE = re.compile(' +')
 
+    # Ignored
+    WHITESPACE = re.compile(' +')
     COMMENT = re.compile('#.*')
 
+    # Error fallback
     INVALID = re.compile('.*')
 
+    # Special block delimiters
     INDENT = '<INDENT>'
     DEDENT = '<DEDENT>'
 
@@ -81,18 +123,3 @@ def lex(string):
 
                     current_pos = match.end()
                     break
-
-
-
-test_string = r'''
-"as \n df"
-'''
-
-
-def test():
-    for token in lex(test_string):
-        print(token)
-
-
-if __name__ == '__main__':
-    test()
