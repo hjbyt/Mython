@@ -87,7 +87,7 @@ class Lexeme(NamedTuple):
     matched_string: str
 
 
-def lex(string):
+def lex(string : str):
     lines = string.splitlines()
     current_indentation_level = 0
     current_line = 0
