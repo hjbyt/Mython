@@ -14,14 +14,19 @@ class LexError(CompilationError):
 
 
 class LexemeType(Enum):
-    DEF = re.compile("def")
-    COLON = re.compile(":")
-    LPAREN = re.compile(r"\(")
-    RPAREN = re.compile(r"\)")
+    DEF = re.compile('def')
+    COLON = re.compile(':')
+    LPAREN = re.compile(r'\(')
+    RPAREN = re.compile(r'\)')
 
-    INT = re.compile("([0-9]+)")
-    ID = re.compile("[a-zA-Z][a-zA-Z0-9_]*")
-    WHITESPACE = re.compile(" +")
+    STRING = re.compile(r'"([ -!#-\[\]-~]|(\\[tn\\\"]))*"')
+    INT = re.compile('[0-9]+')
+    ID = re.compile('[a-zA-Z][a-zA-Z0-9_]*')
+    WHITESPACE = re.compile(' +')
+
+    COMMENT = re.compile('#.*')
+
+    INVALID = re.compile('.*')
 
     INDENT = '<INDENT>'
     DEDENT = '<DEDENT>'
@@ -56,7 +61,7 @@ def lex(string):
         leading_space_count = len(line) - len(lstripted_line)
         line_indentation_level, remainder = divmod(leading_space_count, INDENTATION_SIZE)
         if remainder != 0:
-            raise LexError("Invalid indentation at line %d" % current_line)
+            raise LexError('Invalid indentation at line %d' % current_line)
 
         indentation_diff = line_indentation_level - current_indentation_level
         indenetation_type = LexemeType.INDENT if indentation_diff >= 0 else LexemeType.DEDENT
@@ -66,28 +71,22 @@ def lex(string):
 
         while current_pos < len(line):
             for lexeme_type in LexemeType:
+                if lexeme_type == LexemeType.INVALID:
+                    raise LexError('Invalid character at line: %d, column: %d' % (current_line, current_pos))
                 match = lexeme_type.regex.match(line, current_pos)
                 if match:
                     matched_string = match.group()
-                    if lexeme_type != LexemeType.WHITESPACE:
+                    if lexeme_type not in {LexemeType.WHITESPACE, LexemeType.COMMENT}:
                         yield Lexeme(lexeme_type, current_line, current_pos, matched_string)
 
                     current_pos = match.end()
-
                     break
-            else:
-                raise LexError("Illegal character at line: %d, column: %d" % (current_line, current_pos))
 
 
-test_string = """
 
-def asdf():
-    5
-
-    4
-7
-
-"""
+test_string = r'''
+"as \n df"
+'''
 
 
 def test():
