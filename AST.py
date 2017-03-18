@@ -120,6 +120,24 @@ class NotIn(BinOp):
     pass
 
 
+class UnaryOp(Expression):
+    def __init__(self, position: Position, operand: Expression):
+        super().__init__(position)
+        self.operand = operand
+
+
+class Not(UnaryOp):
+    pass
+
+
+class Positive(UnaryOp):
+    pass
+
+
+class Negative(UnaryOp):
+    pass
+
+
 #
 # Statements
 #

@@ -27,6 +27,9 @@ OP_DICT = {
     ast.IsNot: AST.IsNot,
     ast.In: AST.In,
     ast.NotIn: AST.NotIn,
+    ast.Not: AST.Not,
+    ast.UAdd: AST.Positive,
+    ast.USub: AST.Negative,
 }
 
 
@@ -84,6 +87,11 @@ class Converter(ast.NodeVisitor):
 
         return reduce(make_binop, node.values)
 
+    def visit_UnaryOp(self, node):
+        operand = self.visit(node.operand)
+        op_class = OP_DICT[node.op.__class__]
+        return op_class(_position(node), operand)
+
     def generic_visit(self, node):
         print(f"generic: {node}")
         super().generic_visit(node)
@@ -107,7 +115,7 @@ def parse(string):
 
 
 TEST = """
-1 is 2
+++-+-+-+a
 """
 
 
