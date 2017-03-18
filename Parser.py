@@ -52,10 +52,18 @@ class Converter(ast.NodeVisitor):
         return self.visit(node.value)
 
     def visit_Num(self, node):
-        return AST.IntLiteral(_position(node), node.n)
+        return AST.Int(_position(node), node.n)
 
     def visit_Str(self, node):
-        return AST.StringLiteral(_position(node), node.s)
+        return AST.String(_position(node), node.s)
+
+    def visit_List(self, node):
+        values = [self.visit(x) for x in node.elts]
+        return AST.List(_position(node), values)
+
+    def visit_Tuple(self, node):
+        values = [self.visit(x) for x in node.elts]
+        return AST.Tuple(_position(node), values)
 
     def visit_Name(self, node):
         return AST.LocationSimple(_position(node), node.id)
@@ -122,7 +130,8 @@ def parse(string):
 
 
 TEST = """
-"asdf"
+[1,2,a]
+(3, (1,2))
 """
 
 

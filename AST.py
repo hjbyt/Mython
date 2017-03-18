@@ -18,16 +18,28 @@ class Literal(Expression):
     pass
 
 
-class IntLiteral(Literal):
+class Int(Literal):
     def __init__(self, position: Position, value: int):
         super().__init__(position)
         self.value = value
 
 
-class StringLiteral(Literal):
+class String(Literal):
     def __init__(self, position: Position, value: str):
         super().__init__(position)
         self.value = value
+
+
+class List(Literal):
+    def __init__(self, position: Position, values: [Expression]):
+        super().__init__(position)
+        self.values = values
+
+
+class Tuple(Literal):
+    def __init__(self, position: Position, values: [Expression]):
+        super().__init__(position)
+        self.values = values
 
 
 class Location(Expression):
