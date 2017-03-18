@@ -1,43 +1,42 @@
-from Lexer import lex, LexemeType
+from Lexer import lex, Lexeme
 from Common import CompilationError
-import AST
+import parsimonious.utils
+from parsimonious.grammar import TokenGrammar, NodeVisitor
 
 
-class SyntaxError(CompilationError):
+class MythonSyntaxError(CompilationError):
     pass
 
 
-class Parser:
-    def __init__(self, tokens):
-        self.tokens = list(tokens)
+_GRAMMAR = """
+literal = int_literal / string_literal / boolean_literal / none_literal
+int_literal = "INT"
+string_literal = "STRING"
+boolean_literal = "TRUE" / "FALSE"
+none_literal = "NONE"
+"""
+GRAMMAR = TokenGrammar(_GRAMMAR)
 
-    def next_is_eof(self):
-        return len(self.tokens) == 0
 
-    def next_is(self, type: LexemeType):
-        try:
-            return self.tokens[-1].type == type
-        except IndexError:
-            raise SyntaxError('EOF not expected')
+class Token(parsimonious.utils.Token):
+    def __init__(self, lexeme: Lexeme):
+        super().__init__(lexeme.type.name)
+        self.lexeme = lexeme
 
-    def pop(self):
-        try:
-            return self.tokens.pop()
-        except IndexError:
-            raise SyntaxError('EOF not expected')
 
-    def match(self, expected_type: LexemeType):
-        token = self.pop()
-        if token.type != expected_type:
-            raise SyntaxError('Unexpected token (%s)' % token)
-        return token
+# class Analyzer(NodeVisitor):
+#     def visit_literal(self, node, _):
+#         pass
+#
+#     def visit_int_literal(self, node, _):
+#         print(int(node.text[0].lexeme.matched_string))
 
-    def parse_expression(self):
-        pass
-
-    def parse_int(self):
-        token = self.match(LexemeType.INT)
-        return AST.IntLiteral(token)
+def parse(string):
+    lexemes = lex(string)
+    tokens = [Token(x) for x in lexemes]
+    parse_tree = GRAMMAR.parse(tokens)
+    # Analyzer().visit(parsed)
+    return parse_tree
 
 
 TEST_STRING = """
@@ -46,8 +45,7 @@ TEST_STRING = """
 
 
 def test():
-    parser = Parser(lex(TEST_STRING))
-    print(parser.parse_int())
+    print(parse(TEST_STRING))
 
 
 if __name__ == '__main__':
