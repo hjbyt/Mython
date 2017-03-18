@@ -41,6 +41,41 @@ class Call(Expression):
         self.args = args
 
 
+class BinOp(Expression):
+    def __init__(self, position: Position, left: Expression, right: Expression):
+        super().__init__(position)
+        self.left = left
+        self.right = right
+
+
+class Add(BinOp):
+    pass
+
+
+class Subtract(BinOp):
+    pass
+
+
+class Multiply(BinOp):
+    pass
+
+
+class Divide(BinOp):
+    pass
+
+
+class Modulo(BinOp):
+    pass
+
+
+class And(BinOp):
+    pass
+
+
+class Or(BinOp):
+    pass
+
+
 #
 # Statements
 #
@@ -50,7 +85,7 @@ class Statement(Node):
         self.position = position
 
 
-class Assignment(Statement):
+class Assign(Statement):
     def __init__(self, position: Position, target: Location, value: Expression):
         super().__init__(position)
         self.target = target

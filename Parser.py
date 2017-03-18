@@ -1,10 +1,23 @@
 import ast
+from functools import reduce
+
 import AST
 from Common import Position, CompilationError
 
 
 class ParseError(CompilationError):
     pass
+
+
+OP_DICT = {
+    ast.Add: AST.Add,
+    ast.Sub: AST.Subtract,
+    ast.Mult: AST.Multiply,
+    ast.Div: AST.Divide,
+    ast.Mod: AST.Modulo,
+    ast.And: AST.And,
+    ast.Or: AST.Or,
+}
 
 
 class Converter(ast.NodeVisitor):
@@ -31,12 +44,27 @@ class Converter(ast.NodeVisitor):
             raise ParseError('Assignment of only one target is supported')
         target = self.visit(node.targets[0])
         value = self.visit(node.value)
-        return AST.Assignment(_position(node), target, value)
+        return AST.Assign(_position(node), target, value)
 
     def visit_Call(self, node):
         func = self.visit(node.func)
         args = [self.visit(arg) for arg in node.args]
         return AST.Call(_position(node), func, args)
+
+    def visit_BinOp(self, node):
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+        op_class = OP_DICT[node.op.__class__]
+        return op_class(_position(node), left, right)
+
+    def visit_BoolOp(self, node):
+        op_class = OP_DICT[node.op.__class__]
+        position = _position(node)
+
+        def make_binop(left, right):
+            return op_class(position, left, right)
+
+        return reduce(make_binop, node.values)
 
     def generic_visit(self, node):
         print(f"generic: {node}")
@@ -61,9 +89,7 @@ def parse(string):
 
 
 TEST = """
-def main(x):
-    y = 5
-    print(y)
+True and False and True
 """
 
 
