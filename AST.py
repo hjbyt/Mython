@@ -1,13 +1,17 @@
-from Lexer import Lexeme
+from Common import Position
 
 
 class Node:
-    def __init__(self, token: Lexeme):
-        self.token = token
+    pass
 
+
+#
+# Expressions
+#
 
 class Expression(Node):
-    pass
+    def __init__(self, position: Position):
+        self.position = position
 
 
 class Literal(Expression):
@@ -15,10 +19,56 @@ class Literal(Expression):
 
 
 class IntLiteral(Literal):
-    def __init__(self, token: Lexeme):
-        super().__init__(token)
-        self.value = int(token.matched_string)
+    def __init__(self, position: Position, value: int):
+        super().__init__(position)
+        self.value = value
 
-    def __str__(self):
-        return str(self.value)
 
+class Location(Expression):
+    pass
+
+
+class LocationSimple(Location):
+    def __init__(self, position: Position, name: str):
+        super().__init__(position)
+        self.value = name
+
+
+class Call(Expression):
+    def __init__(self, position: Position, func: Expression, args: [Expression]):
+        super().__init__(position)
+        self.func = func
+        self.args = args
+
+
+#
+# Statements
+#
+
+class Statement(Node):
+    def __init__(self, position: Position):
+        self.position = position
+
+
+class Assignment(Statement):
+    def __init__(self, position: Position, target: Location, value: Expression):
+        super().__init__(position)
+        self.target = target
+        self.value = value
+
+
+class FunctionDefinition(Statement):
+    def __init__(self, position: Position, name: str, args: [str], body: [Statement]):
+        super().__init__(position)
+        self.name = name
+        self.args = args
+        self.body = body
+
+
+#
+#
+#
+
+class Module(Node):
+    def __init__(self, body: [Statement]):
+        self.body = body

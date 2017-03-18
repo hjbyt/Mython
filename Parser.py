@@ -1,67 +1,74 @@
-from Lexer import lex, Lexeme
-from Common import CompilationError
-import parsimonious.utils
-from parsimonious.grammar import TokenGrammar, NodeVisitor
+import ast
+import AST
+from Common import Position, CompilationError
 
 
-class MythonSyntaxError(CompilationError):
+class ParseError(CompilationError):
     pass
 
 
-_GRAMMAR = """
-test = or_test / lambdef
-lambdef = "LAMBDA" arglist? "COLON" test
-or_test = and_test ("OR" and_test)*
-and_test = not_test ("AND" not_test)*
-not_test = ("NOT" not_test) / comparison
-comparison = expr (comp_op expr)*
-comp_op = "LT" / "GT" / "EQ" / "GTE" / "LTE" / "NEQ" / "IN" / ("NOT" "IN") / "IS" / ("IS" "NOT")
-expr = arith_expr
-arith_expr = term (("PLUS" / "MINUS") term)*
-term = factor (("MULT" / "DIV" / "MOD") factor)*
-factor = (("PLUS" / "MINUS") factor) / atom_expr
-atom_expr = atom trailer*
-atom = ("LPAREN" test "RPAREN") / "ID" / literal
-trailer = ("LPAREN" arglist? "RPAREN") / ("LBRACKET" test "RBRACKET") / ("DOT" "ID")
-arglist = test ("COMMA" test)*
+class Converter(ast.NodeVisitor):
+    def visit_Module(self, node):
+        body = [self.visit(x) for x in node.body]
+        return AST.Module(body)
 
-literal = int_literal / string_literal / boolean_literal / none_literal
-int_literal = "INT"
-string_literal = "STRING"
-boolean_literal = "TRUE" / "FALSE"
-none_literal = "NONE"
-"""
-GRAMMAR = TokenGrammar(_GRAMMAR)
+    def visit_FunctionDef(self, node):
+        args = [x.arg for x in node.args.args]
+        body = [self.visit(x) for x in node.body]
+        return AST.FunctionDefinition(_position(node), node.name, args, body)
+
+    def visit_Expr(self, node):
+        return self.visit(node.value)
+
+    def visit_Num(self, node):
+        return AST.IntLiteral(_position(node), node.n)
+
+    def visit_Name(self, node):
+        return AST.LocationSimple(_position(node), node.id)
+
+    def visit_Assign(self, node):
+        if len(node.targets) != 1:
+            raise ParseError('Assignment of only one target is supported')
+        target = self.visit(node.targets[0])
+        value = self.visit(node.value)
+        return AST.Assignment(_position(node), target, value)
+
+    def visit_Call(self, node):
+        func = self.visit(node.func)
+        args = [self.visit(arg) for arg in node.args]
+        return AST.Call(_position(node), func, args)
+
+    def generic_visit(self, node):
+        print(f"generic: {node}")
+        super().generic_visit(node)
+
+    # Ignore for now
+    def visit_Load(self, node):
+        pass
+
+    # Ignore for now
+    def visit_Store(self, node):
+        pass
 
 
-class Token(parsimonious.utils.Token):
-    def __init__(self, lexeme: Lexeme):
-        super().__init__(lexeme.type.name)
-        self.lexeme = lexeme
+def _position(node):
+    return Position(node.lineno, node.col_offset)
 
-
-# class Analyzer(NodeVisitor):
-#     def visit_literal(self, node, _):
-#         pass
-#
-#     def visit_int_literal(self, node, _):
-#         print(int(node.text[0].lexeme.matched_string))
 
 def parse(string):
-    lexemes = lex(string)
-    tokens = [Token(x) for x in lexemes]
-    parse_tree = GRAMMAR.parse(tokens)
-    # Analyzer().visit(parsed)
-    return parse_tree
+    root = ast.parse(string)
+    return Converter().visit(root)
 
 
-TEST_STRING = """
-5
+TEST = """
+def main(x):
+    y = 5
+    print(y)
 """
 
 
 def test():
-    print(parse(TEST_STRING))
+    print(parse(TEST))
 
 
 if __name__ == '__main__':
