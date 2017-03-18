@@ -9,6 +9,22 @@ class MythonSyntaxError(CompilationError):
 
 
 _GRAMMAR = """
+test = or_test / lambdef
+lambdef = "LAMBDA" arglist? "COLON" test
+or_test = and_test ("OR" and_test)*
+and_test = not_test ("AND" not_test)*
+not_test = ("NOT" not_test) / comparison
+comparison = expr (comp_op expr)*
+comp_op = "LT" / "GT" / "EQ" / "GTE" / "LTE" / "NEQ" / "IN" / ("NOT" "IN") / "IS" / ("IS" "NOT")
+expr = arith_expr
+arith_expr = term (("PLUS" / "MINUS") term)*
+term = factor (("MULT" / "DIV" / "MOD") factor)*
+factor = (("PLUS" / "MINUS") factor) / atom_expr
+atom_expr = atom trailer*
+atom = ("LPAREN" test "RPAREN") / "ID" / literal
+trailer = ("LPAREN" arglist? "RPAREN") / ("LBRACKET" test "RBRACKET") / ("DOT" "ID")
+arglist = test ("COMMA" test)*
+
 literal = int_literal / string_literal / boolean_literal / none_literal
 int_literal = "INT"
 string_literal = "STRING"
