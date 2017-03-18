@@ -38,10 +38,23 @@ class Converter(ast.NodeVisitor):
         body = [self.visit(x) for x in node.body]
         return AST.Module(body)
 
+    def visit_ClassDef(self, node):
+        if len(node.bases) > 1:
+            raise ParseError("Multiple inheritance not supported")
+        if node.bases:
+            base = node.bases[0]
+            if not isinstance(base, ast.Name):
+                raise ParseError("Base class must be an identifier")
+            base = base.id
+        else:
+            base = None
+        body = [self.visit(x) for x in node.body]
+        return AST.Class(_position(node), node.name, base, body)
+
     def visit_FunctionDef(self, node):
         args = [x.arg for x in node.args.args]
         body = [self.visit(x) for x in node.body]
-        return AST.FunctionDefinition(_position(node), node.name, args, body)
+        return AST.Function(_position(node), node.name, args, body)
 
     def visit_Lambda(self, node):
         args = [x.arg for x in node.args.args]
@@ -141,8 +154,8 @@ def parse(string):
 
 
 TEST = """
-a[1]
-a.b
+class aaa(int):
+    1
 """
 
 

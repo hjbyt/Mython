@@ -186,19 +186,27 @@ class Statement(Node):
         self.position = position
 
 
-class Assign(Statement):
-    def __init__(self, position: Position, target: Location, value: Expression):
-        super().__init__(position)
-        self.target = target
-        self.value = value
-
-
-class FunctionDefinition(Statement):
+class Function(Statement):
     def __init__(self, position: Position, name: str, args: [str], body: [Statement]):
         super().__init__(position)
         self.name = name
         self.args = args
         self.body = body
+
+
+class Class(Statement):
+    def __init__(self, position: Position, name: str, base: str, body: [Statement]):
+        super().__init__(position)
+        self.name = name
+        self.base = base
+        self.body = body
+
+
+class Assign(Statement):
+    def __init__(self, position: Position, target: Location, value: Expression):
+        super().__init__(position)
+        self.target = target
+        self.value = value
 
 
 #
