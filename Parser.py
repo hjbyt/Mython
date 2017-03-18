@@ -54,6 +54,9 @@ class Converter(ast.NodeVisitor):
     def visit_Num(self, node):
         return AST.IntLiteral(_position(node), node.n)
 
+    def visit_Str(self, node):
+        return AST.StringLiteral(_position(node), node.s)
+
     def visit_Name(self, node):
         return AST.LocationSimple(_position(node), node.id)
 
@@ -98,8 +101,7 @@ class Converter(ast.NodeVisitor):
         return op_class(_position(node), operand)
 
     def generic_visit(self, node):
-        print(f"generic: {node}")
-        super().generic_visit(node)
+        raise ParseError(f'code generated unsupported node ({node})')
 
     # Ignore for now
     def visit_Load(self, node):
@@ -120,7 +122,7 @@ def parse(string):
 
 
 TEST = """
-lambda x: x + 1
+"asdf"
 """
 
 

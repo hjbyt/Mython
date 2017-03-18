@@ -24,6 +24,12 @@ class IntLiteral(Literal):
         self.value = value
 
 
+class StringLiteral(Literal):
+    def __init__(self, position: Position, value: str):
+        super().__init__(position)
+        self.value = value
+
+
 class Location(Expression):
     pass
 
@@ -143,6 +149,7 @@ class Lambda(Expression):
         super().__init__(position)
         self.args = args
         self.body = body
+
 
 #
 # Statements
