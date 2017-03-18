@@ -43,6 +43,11 @@ class Converter(ast.NodeVisitor):
         body = [self.visit(x) for x in node.body]
         return AST.FunctionDefinition(_position(node), node.name, args, body)
 
+    def visit_Lambda(self, node):
+        args = [x.arg for x in node.args.args]
+        body = self.visit(node.body)
+        return AST.Lambda(_position(node), args, node.body)
+
     def visit_Expr(self, node):
         return self.visit(node.value)
 
@@ -115,7 +120,7 @@ def parse(string):
 
 
 TEST = """
-++-+-+-+a
+lambda x: x + 1
 """
 
 

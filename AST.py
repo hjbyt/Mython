@@ -138,6 +138,12 @@ class Negative(UnaryOp):
     pass
 
 
+class Lambda(Expression):
+    def __init__(self, position: Position, args: [str], body: Expression):
+        super().__init__(position)
+        self.args = args
+        self.body = body
+
 #
 # Statements
 #
