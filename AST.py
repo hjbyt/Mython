@@ -76,6 +76,50 @@ class Or(BinOp):
     pass
 
 
+class Comparison(BinOp):
+    pass
+
+
+class Equals(Comparison):
+    pass
+
+
+class NotEquals(Comparison):
+    pass
+
+
+class LessThan(Comparison):
+    pass
+
+
+class LessThanEquals(Comparison):
+    pass
+
+
+class GreaterThan(Comparison):
+    pass
+
+
+class GreaterThanEquals(Comparison):
+    pass
+
+
+class Is(BinOp):
+    pass
+
+
+class IsNot(BinOp):
+    pass
+
+
+class In(BinOp):
+    pass
+
+
+class NotIn(BinOp):
+    pass
+
+
 #
 # Statements
 #

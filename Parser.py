@@ -17,6 +17,16 @@ OP_DICT = {
     ast.Mod: AST.Modulo,
     ast.And: AST.And,
     ast.Or: AST.Or,
+    ast.Eq: AST.Equals,
+    ast.NotEq: AST.NotEquals,
+    ast.Lt: AST.LessThan,
+    ast.LtE: AST.LessThanEquals,
+    ast.Gt: AST.GreaterThan,
+    ast.GtE: AST.GreaterThanEquals,
+    ast.Is: AST.Is,
+    ast.IsNot: AST.IsNot,
+    ast.In: AST.In,
+    ast.NotIn: AST.NotIn,
 }
 
 
@@ -57,6 +67,14 @@ class Converter(ast.NodeVisitor):
         op_class = OP_DICT[node.op.__class__]
         return op_class(_position(node), left, right)
 
+    def visit_Compare(self, node):
+        if not (len(node.ops) == 1 and len(node.comparators) == 1):
+            raise ParseError("Multiple comparisons not supported")
+        left = self.visit(node.left)
+        right = self.visit(node.comparators[0])
+        op_class = OP_DICT[node.ops[0].__class__]
+        return op_class(_position(node), left, right)
+
     def visit_BoolOp(self, node):
         op_class = OP_DICT[node.op.__class__]
         position = _position(node)
@@ -89,7 +107,7 @@ def parse(string):
 
 
 TEST = """
-True and False and True
+1 is 2
 """
 
 
