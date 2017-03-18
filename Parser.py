@@ -68,6 +68,17 @@ class Converter(ast.NodeVisitor):
     def visit_Name(self, node):
         return AST.LocationSimple(_position(node), node.id)
 
+    def visit_Attribute(self, node):
+        value = self.visit(node.value)
+        return AST.LocationField(_position(node), value, node.attr)
+
+    def visit_Subscript(self, node):
+        if not isinstance(node.slice, ast.Index):
+            raise ParseError("Unsuppored subscript")
+        value = self.visit(node.value)
+        index = self.visit(node.slice.value)
+        return AST.LocationField(_position(node), value, index)
+
     def visit_Assign(self, node):
         if len(node.targets) != 1:
             raise ParseError('Assignment of only one target is supported')
@@ -130,8 +141,8 @@ def parse(string):
 
 
 TEST = """
-[1,2,a]
-(3, (1,2))
+a[1]
+a.b
 """
 
 

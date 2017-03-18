@@ -49,7 +49,21 @@ class Location(Expression):
 class LocationSimple(Location):
     def __init__(self, position: Position, name: str):
         super().__init__(position)
-        self.value = name
+        self.name = name
+
+
+class LocationField(Location):
+    def __init__(self, position: Position, value: Expression, field: str):
+        super().__init__(position)
+        self.value = value
+        self.field = field
+
+
+class LocationSubscript(Location):
+    def __init__(self, position: Position, value: Expression, index: int):
+        super().__init__(position)
+        self.value = value
+        self.index = index
 
 
 class Call(Expression):
