@@ -209,6 +209,43 @@ class Assign(Statement):
         self.value = value
 
 
+class If(Statement):
+    def __init__(self, position: Position, condition: Expression, body: [Statement], orelse: [Statement]):
+        super().__init__(position)
+        self.condition = condition
+        self.body = body
+        self.orelse = orelse
+
+
+class While(Statement):
+    def __init__(self, position: Position, condition: Expression, body: [Statement], orelse: [Statement]):
+        super().__init__(position)
+        self.condition = condition
+        self.body = body
+        self.orelse = orelse
+
+
+class ForEach(Statement):
+    def __init__(self, position: Position, target: str, iterable: Expression, body: [Statement], orelse: [Statement]):
+        super().__init__(position)
+        self.target = target
+        self.iterable = iterable
+        self.body = body
+        self.orelse = orelse
+
+
+class Break(Statement):
+    pass
+
+
+class Continue(Statement):
+    pass
+
+
+class Pass(Statement):
+    pass
+
+
 #
 #
 #

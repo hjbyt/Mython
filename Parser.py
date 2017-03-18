@@ -56,6 +56,35 @@ class Converter(ast.NodeVisitor):
         body = [self.visit(x) for x in node.body]
         return AST.Function(_position(node), node.name, args, body)
 
+    def visit_If(self, node):
+        condition = self.visit(node.test)
+        body = [self.visit(x) for x in node.body]
+        orelse = [self.visit(x) for x in node.orelse]
+        return AST.If(_position(node), condition, body, orelse)
+
+    def visit_While(self, node):
+        condition = self.visit(node.test)
+        body = [self.visit(x) for x in node.body]
+        orelse = [self.visit(x) for x in node.orelse]
+        return AST.While(_position(node), condition, body, orelse)
+
+    def visit_Pass(self, node):
+        return AST.Pass(_position(node))
+
+    def visit_Break(self, node):
+        return AST.Break(_position(node))
+
+    def visit_Continue(self, node):
+        return AST.Continue(_position(node))
+
+    def visit_For(self, node):
+        if not isinstance(node.target, ast.Name):
+            raise ParseError("Target must be an identifier")
+        iterable = self.visit(node.iter)
+        body = [self.visit(x) for x in node.body]
+        orelse = [self.visit(x) for x in node.orelse]
+        return AST.ForEach(_position(node), node.target.id, iterable, body, orelse)
+
     def visit_Lambda(self, node):
         args = [x.arg for x in node.args.args]
         body = self.visit(node.body)
@@ -154,8 +183,12 @@ def parse(string):
 
 
 TEST = """
-class aaa(int):
-    1
+for x in range(3):
+    print(x)
+    break
+    continue
+    pass
+pass
 """
 
 
